@@ -8,7 +8,7 @@
 // (Project → Settings → Environment Variables). Never hardcode it here if
 // this repo will ever be public. Get a key at https://console.groq.com/keys
 
-const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
+const DEFAULT_MODEL = 'llama-3.1-70b-versatile';
 
 export default async function handler(req, res) {
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
