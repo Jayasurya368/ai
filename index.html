@@ -8,12 +8,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- pdf.js: Groq has no native PDF/document input (unlike Anthropic), so PDFs
-     are text-extracted here in the browser before being sent to /api/groq-message -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
-<script>
-  if (window['pdfjsLib']) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
-  }
+     are text-extracted here in the browser before being sent to /api/groq-message.
+     pdf.js 4.x on cdnjs only ships as an ES module (no plain pdf.min.js UMD
+     build), so it's imported as a module and exposed on window for the
+     classic <script> below to use. -->
+<script type="module">
+  import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
+  window.pdfjsLib = pdfjsLib;
 </script>
 <style>
   :root{
@@ -626,8 +628,18 @@ function arrayBufferToBase64(buffer){
 
 /* Groq has no PDF/document input, so we extract the text from the PDF here
    in the browser (via pdf.js) and send plain text instead. */
+async function waitForPdfJs(timeoutMs){
+  const start = Date.now();
+  while (!window['pdfjsLib']){
+    if (Date.now() - start > timeoutMs) return false;
+    await new Promise(r => setTimeout(r, 100));
+  }
+  return true;
+}
+
 async function extractPdfText(file){
-  if (!window['pdfjsLib']) throw new Error('PDF reader failed to load. Check your connection and try again.');
+  const ready = await waitForPdfJs(8000);
+  if (!ready) throw new Error('PDF reader failed to load. Check your connection and try again.');
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   let text = '';
