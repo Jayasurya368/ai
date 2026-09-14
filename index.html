@@ -685,7 +685,7 @@ async function generateLessonAndQuiz(){
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-70b-versatile',
       max_tokens: 3000,
       messages: [{ role:'user', content: messageContent }],
     }),
@@ -803,7 +803,7 @@ async function handleCheckpointReexplain(i){
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-70b-versatile',
         max_tokens: 300,
         messages: [{ role:'user', content:
           'A student said this explanation didn\'t click for them:\n\n' +
@@ -903,7 +903,7 @@ async function handleRagAsk(){
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-70b-versatile',
         max_tokens: 400,
         messages: [{ role:'user', content:
           'You are a teaching assistant. Answer the student\'s question using ONLY the lesson excerpt below — do not introduce outside facts. Keep it short (2-4 sentences), plain language.\n\n' +
